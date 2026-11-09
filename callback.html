@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>WB QBO Tools – Connect</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 20px; color: #1e293b; line-height: 1.55; }
+  h1 { color: #1e3a5f; font-size: 26px; }
+  textarea { width: 100%; box-sizing: border-box; font-family: Consolas, monospace; font-size: 14px; padding: 10px;
+             border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; }
+  button { margin-top: 10px; background: #1e3a5f; color: #fff; border: 0; border-radius: 6px; padding: 9px 18px;
+           font-size: 15px; font-weight: 700; cursor: pointer; }
+  .note { color: #64748b; font-size: 13px; margin-top: 22px; }
+</style>
+</head>
+<body>
+<h1 id="h">WB QBO Tools</h1>
+<p id="msg">This page is used when connecting QuickBooks Online to WB QBO Tools. There is nothing to do here.</p>
+<textarea id="out" rows="4" readonly hidden></textarea>
+<button id="copy" type="button" hidden>Copy</button>
+<p class="note">This page only shows what QuickBooks sent back in the address bar. It doesn't store or send anything,
+and loads nothing from other sites. The code works once, expires within minutes, and is useless without the app's
+secret, which never leaves the operator's computer.</p>
+<script>
+(function () {
+  var q = new URLSearchParams(window.location.search);
+  var h = document.getElementById('h'), msg = document.getElementById('msg');
+  var out = document.getElementById('out'), btn = document.getElementById('copy');
+  if (q.get('error')) {
+    h.textContent = 'Not connected';
+    msg.textContent = 'QuickBooks returned "' + q.get('error') + '". Go back to qbo_connect.py and try again.';
+  } else if (q.get('code') && q.get('realmId')) {
+    h.textContent = 'Almost done';
+    msg.textContent = 'Copy the text below and paste it into qbo_connect.py.';
+    out.value = 'code=' + q.get('code') + '&realmId=' + q.get('realmId') + '&state=' + (q.get('state') || '');
+    out.hidden = false;
+    btn.hidden = false;
+    btn.onclick = function () {
+      out.select();
+      var done = function () { btn.textContent = 'Copied ✓'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(out.value).then(done, function () { document.execCommand('copy'); done(); });
+      } else { document.execCommand('copy'); done(); }
+    };
+  }
+  if (window.location.search) {            // keep the code out of the browser history
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+})();
+</script>
+</body>
+</html>
